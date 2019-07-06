@@ -289,6 +289,37 @@ The datapath and controller units of the MIPS processor are connected as shown i
   <img src="https://dl.dropboxusercontent.com/s/4fkub8yib2yy2rg/mips_proc.PNG">
 </p>
 
+### Instruction Types
+#### R-Type Instructions
+The name R-type is short for register-type. R-type instructions use three registers as operands: two as sources, and one as a destination.
+
+| op (6-bits) | rs (5-bits) | rt (5-bits) | rt (5-bits) | shamt (5-bits) | funct (6-bits) |
+|:-----------:|:-----------:|-------------|-------------|----------------|----------------|
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/2fammjqel96z8gv/r-type.PNG">
+</p>
+
+#### I-Type Instructions
+The name I-type is short for immediate-type. I-type instructions use two register operands and one immediate operand. .
+
+| op (6-bits) | rs (5-bits) | rt (5-bits) | imm (16-bits) |
+|:-----------:|:-----------:|-------------|---------------|
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/op942qu9ch9uufi/i-type.PNG">
+</p>
+
+#### J-Type Instructions
+The name J-type is short for jump-type. This format is used only with jump instructions.
+
+| op (6-bits) | addr (26-bits) |
+|:-----------:|:--------------:|
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/jebc38ig6jvd9xb/j-type.PNG">
+</p>
+
 # License
 This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
