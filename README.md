@@ -1,7 +1,7 @@
 # Primitive-MIPS-CPU-Design
 
 ## License
-This project was amde for educational purposes only. The content owner
+This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
 view, download, display, and copy the content, subject to the following
 restrictions:
