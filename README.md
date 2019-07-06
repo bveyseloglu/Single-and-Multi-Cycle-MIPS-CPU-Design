@@ -253,7 +253,7 @@ Sign Extender Unit extends the 16-bit signal to the 32-bit signal. It assigns th
 The ALU component performs some arithmetic operations on its input operands depends on the Table 1. It shows which operation is done according to the F(2:0). You are familiar to write the vhdl description of an ALU from previous labs. Zero input is necessary for branch instructions. It indicates whether result of the ALU is zero or not.
 
 <p align="center"> 
-  <img src="https://dl.dropboxusercontent.com/s/dlqq118ze1r8h93/single_cycle_alu_funcs.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/single_cycle_alu_funcs.PNG">
 </p>
 
 ### Single-Cycle Control
