@@ -94,9 +94,9 @@ In this project, an 8-bit sequential multiplier was implemented.
 
 A sequential multiplier needs some extra signals for synchronization purpose.
 
-**Input clk**: clock signal to synchronize the system.
-**Input reset:** asynchronous reset signal to initialize the system.
-**Input start:** synchronous signal that must be high to start a new operation.
+**Input clk**: clock signal to synchronize the system.\
+**Input reset:** asynchronous reset signal to initialize the system.\
+**Input start:** synchronous signal that must be high to start a new operation.\
 **Output ready:** synchronous signal that is set during 1 cycle by the multiplier when the result of the operation is available.
 
 Shift and add algorithm is as follows; you sequentially multiply the multiplicand (B) by each digit of the multiplier (A) and then summing up the partial products which are properly shifted to get the final result.
@@ -164,6 +164,41 @@ The architecture of top_multiplier.vhd consisting by 7 components that 6 of them
 * **adder.vhd:** Adds the inputs of the block.
 * **ander.vhd:** Does the logical and operation of second input’s all digits with the first input seperately. Then, concatenates the result to a 8 bit std_logic_vector.
 * **controller.vhd:** This is a finite state machine that controls the whole multiplication operation.
+
+## 4. Register File, RAM, and ROM
+
+The processor communicates with the memory system over a memory interface. Figure 1 show the simple memory interface used in our singlecycle and multicycle MIPS processor. The processor sends an address over the address bus to the memory system. For a read, write is 0, read is 1 and the memory returns the data on the rddata bus. For a write, write is 1, read is 0 and the processor sends data to the memory on the wrdata bus.
+
+### Register File
+The first component that you will implement in this lab is a Register File. The Register File has 32 registers which all have length of 32-bits. You will use it in the CPU which you will implement on next labs. There is a figure below which shows the Register File entity.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/0axmuiy2pnu5qxy/block_regfile.PNG">
+</p>
+
+The Register File has two read ports and one write port. The read ports take 5-bit address inputs, aa and ab, each specifying one of 2^5=32 registers as source operands. They read the 32-bit register values onto read data outputs a and b, respectively. The write port takes a 5-bit address input aw, and a 32-bit write data input wrdata, a write enable input wren and a clock clk.
+
+The final design of the register file that was made in this laboratory session has 32 registers that can store 32 bits of information. The signal type of the registers are standart logic vectors. The initial values of the registers are all the same, that is, 0x00000000. The register file can not write any value different than 0 to $zero register. Also, if an external factor causes an unwanted change to the register, the reading part of the hardware is also returns always zero to avoid any fault.
+
+#### Read from the Register File
+The read process is asynchronous. The 5-bit inputs aa and ab selects the registers to be read. The read values are put respectively on the 32-bit outputs a and b. In CPU, the synchronous operations are needed. Therefore, a clock must be added to the unit. The address is set by the controller at the beginning of cycle, and the result is available before the end of this cycle.
+
+#### Write to the Register File
+The write process is synchronous. The wren input signal activates the writing of the value defined by the 32-bit wrdata input to the register at the address specified by the 5-bit aw input. If the write enable is 1, the register file writes the data into the specified register on the rising edge of the clock.
+Writing a value to the register at address 0 has no effect, the value of this register is always 0. The address, the data and the wren input signals are set during a cycle. At the rising edge of the clock signal, the data is written to the register in the Register File.
+
+### Decoder
+The decoder activates one of the modules on the memory system at a time. It selects the module according to the address value.
+
+For example, with the address 0x10F0, the selected module would be the RAM. The decoder will activate the cs_ram output signal. Recall that at most one chip select (cs) signal can be activated at the same time.
+
+In the design, the decoder checks the adress for activating the correct RAM or ROM component. If the adress is less than 1024 the RAM is activated, if the adress is equal or greater than 1024 and less than 2048 then, the ROM is activated. Also, decoder hardware disables both RAM and ROM if the adress is greater than 2048.
+
+### RAM and ROM
+The synchronous RAM and ROM have a size of 4KB. These memories should be word aligned, the 2 least significant bits of the address are ignored. Note that: There is a tri-state buffer on their rddata output. The FPGA has several synchronous memory blocks (SRAM) that we 
+will use for the RAM and ROM.
+
+Both RAM and ROM hardwares that were designed in the laboratory session can hold 1024 different 32-bit standart logic vectors. The initial values of these memory values are U. The main process of the harwares are sensitive to clock, read, and write signal (if available).
 
 # License
 This project was made for educational purposes only. The content owner
