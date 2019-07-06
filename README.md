@@ -234,7 +234,7 @@ The figure given below shows the datapath of the MIPS processor. After you finis
 you will connect them according to the figure. The datapath given here provides just a few instructions.
 
 <p align="center"> 
-  <img src="https://dl.dropboxusercontent.com/s/single_cycle_datapath.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/nvsf6hz2ko6u1sw/single_cycle_datapath.PNG">
 </p>
 
 #### Multiplexers
