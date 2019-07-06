@@ -320,6 +320,30 @@ The name J-type is short for jump-type. This format is used only with jump instr
   <img src="https://dl.dropboxusercontent.com/s/jebc38ig6jvd9xb/j-type.PNG">
 </p>
 
+### The Architecture
+
+#### The Used Components From the Project 4
+The resultant single cycle MIPS processor design utilizes the components that designed in the previous laboratory session of the computer architecture course. A brief summary of these components were summarized below.
+
+* **Register file.** A register file is a small set of high-speed storage cells inside the CPU. 
+The final design of the register file that was made in the previous laboratory session has 32 registers that can store 32 bits of information. The signal type of the registers are standart logic vectors. The initial values of the registers are all the same, that is, 0x00000000. The register file can not write any value different than 0 to $zero register. Also, if an external factor causes an unwanted change to the register, the reading part of the hardware is also returns always zero to avoid any fault.
+The main register process is sensitive to clk, aa, ab, aw, and wren signals.
+* **Decoder.** The decoder checks the adress for activating the correct RAM or ROM component. If the adress is less than 1024 the RAM is activated, if the adress is equal or greater than 1024 and less than 2048 then, the ROM is activated. Also, decoder hardware disables both RAM and ROM if the adress is greater than 2048.
+* **RAM and ROM.** Both RAM and ROM hardwares that were designed in the previous laboratory session can hold 1024 different 32-bit standart logic vectors. The initial values of these memory values are U. The main process of the harwares are sensitive to clock, read, and write signal (if available).
+
+#### The Datapath Components
+A datapath is a collection of functional units such as arithmetic logic units or multipliers, that perform data processing operations, registers, and buses. Along with the control unit it composes the CPU. A larger datapath can be made by joining more than one number of datapaths using multiplexer.
+
+The essential datapath components of the single cycle CPU that designed in this laboratory session is summarized below.
+* **Adder.** It’s a simple adder circuit that does the adding operation of 2 32-bits inputs. The length of the result is also 32-bits long. It can be used for substraction operation and as a part of an ALU.
+* **Shift left 2 unit.** Shifts the 32-bits input logically, that is, the input multiplied by 4.
+* **ALU.** Applies some basic operations to the 32-bits long inputs of the unit. The operations and their functions codes were described in the Table 1 of the laboratory paper.
+
+#### The Control Unit
+A control unit coordinates how data moves around a cpu. The control unit (CU) is a component of a CPU that directs operation of the processor. It tells the computer's memory, arithmetic/logic unit and input and output devices how to respond to a program's instructions, generally.
+
+The control unit of the single cycle CPU design that made in this laboratory session can generate the “memwrite”, “memtoreg”, “branch”, “alusrc”, “regdst”, “regwrite”, and “alucontrol” signals to configure all of the units to execute the input instruction.  All of these signals were determined while decoding the opcode.
+
 # License
 This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
