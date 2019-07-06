@@ -259,7 +259,7 @@ The ALU component performs some arithmetic operations on its input operands depe
 ### Single-Cycle Control
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/o2ueuz1j4tky0u2/single_cycle_block_cu.PNG"> 
+  <img src="https://dl.dropboxusercontent.com/s/o2ueuz1j4tky0u2/single_cycle_block_cu.PNG"> 
 </p>
 
 The control unit computes the control signals depends on the opcode and funct fields of the instruction, Instr (31:26) and Instr (5:0) You can see necessary control signals attached to the datapath on the Figure.
@@ -267,11 +267,11 @@ The control unit computes the control signals depends on the opcode and funct fi
 Most of the control information comes from the opcode, however for R-type instructions also the funct field is used to determine the ALU operation. Therefore, we will simplify our design by dividing our control unit design into two blocks of combinational logic. The main decoder generates most of the output signals from the opcode. It also determines a 2-bit ALUOp signal. The ALU decoder uses this ALUOp signal together with the funct field to generate ALUControl. The meaning of the ALUOp signal is given in Table below. Table 2 is a truth table for the ALU decoder.
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/izk3vyu030m7shf/single_cycle_alu_encoding.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/izk3vyu030m7shf/single_cycle_alu_encoding.PNG">
 </p>
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/cwwwfcazthg44o3/single_cycle_alu_dec_tt.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/cwwwfcazthg44o3/single_cycle_alu_dec_tt.PNG">
 </p>
 
 The meanings of the three ALUControl signals are given in Table. Because ALUOp is never 11, the truth table can use don’t care’s X1 and 1X instead of 01 and 10 to simplify the logic. When ALUOp is 00 or 01, the ALU should add or subtract, respectively. When ALUOp is 10, the decoder examines the funct field to determine the ALUControl. Note that, for the R-type instructions we implement, the first two bits of the funct field are always 10, so we may ignore them to simplify the decoder.
@@ -279,14 +279,14 @@ The meanings of the three ALUControl signals are given in Table. Because ALUOp i
 Table below is a truth table for the main decoder that summarizes the control signals as a function of the opcode. All R-type instructions use the same main decoder values; they differ only in the ALU decoder output. For instructions that do not write to the register file such as sw and beq nstructions, the RegDst and MemtoReg control signals are don’t cares (X). The address and data to the register write port do not matter because RegWrite is not asserted. The logic for the decoder can be designed using your favorite techniques for combinational logic design.
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/x2i0sg2qyh9mp28/single_cycle_alu_main_dec_tt.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/x2i0sg2qyh9mp28/single_cycle_alu_main_dec_tt.PNG">
 </p>
 
 ### MIPS Processor
 The datapath and controller units of the MIPS processor are connected as shown in the Figure below.
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/4fkub8yib2yy2rg/mips_proc.PNG">
+  <img src="https://dl.dropboxusercontent.com/s/4fkub8yib2yy2rg/mips_proc.PNG">
 </p>
 
 # License
