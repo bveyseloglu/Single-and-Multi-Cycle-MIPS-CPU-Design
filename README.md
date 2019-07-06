@@ -81,7 +81,7 @@ The Shift / Rotate unit performs 5 different shift operations on the operand A b
 
 When shift operations are performed, operand A is shifted to the left or right by a number of position defined by B. The bits shifted out are dismissed. For logical shifts (e.g. sll, srl) zeros are shifted in. In right arithmetic shifts (sra) the sign bit is replicated to keep the sign of the operand. For the rotation operations (rol and ror) the bits shifted out are reinjected at the other end of the operand. As you may notice that, A rotated left by B is equivalent to A rotated right by (-B).
 
-## The Architecture
+### The Architecture
 The architecture of ALU.vhd consisting by 5 components that 4 of them does the arithmetic and logic operations and one of them seperates the requested result from them. All operations done concurrently. The components of ALU architecture are summarized below. 
 * **Add_Sub.vhd**: This module takes the A and B inputs and the some bits of opcode. In addition to that, the module converts the B input into two’s complement form, and then calculates the substraction result. The carry and zero flags are also changes after the calculation.
 * **Comparator.vhd**: This module takes the carry and zero flags, the some bits of the opcode, the most significant bits of A and B inputs and then returns the comparison result. Opcodes that runs this component are also set the add_sub.vhd to calculate the carry and zero flags as in substraction mode.
@@ -89,8 +89,57 @@ The architecture of ALU.vhd consisting by 5 components that 4 of them does the a
 * **Shift_Unit.vhd**: This module takes the A and B inputs and the some bits of opcode and then simply returns the result of desired operation. The input A is the number that desired to apply an operation to it, and B is the number that indicates how many bits that the desired operation will done. It can shift arithmetically and logically and rotate the input. If opcode is incorrect, the module outputs 32 bits of 0.
 * **multiplexer.vhd**: This module selects the output of a component in consideration of opcode. The output of this component is also the output of the entire ALU architecture.
 
+## 3. Sequential Multiplier
+In this project, an 8-bit sequential multiplier was implemented.
 
-## License
+A sequential multiplier needs some extra signals for synchronization purpose.
+
+**Input clk**: clock signal to synchronize the system.
+**Input reset:** asynchronous reset signal to initialize the system.
+**Input start:** synchronous signal that must be high to start a new operation.
+**Output ready:** synchronous signal that is set during 1 cycle by the multiplier when the result of the operation is available.
+
+Shift and add algorithm is as follows; you sequentially multiply the multiplicand (B) by each digit of the multiplier (A) and then summing up the partial products which are properly shifted to get the final result.
+
+There is an architecture view of the multiplier.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/mtzjiiwjgiy51xg/block_seq_multp.PNG">
+</p>
+
+The expressions of the components are listed below.
+**8-bit register Multiplicand:**
+* Operand B is loaded into internal register inside the multiplicand component when load signal is high.
+
+**8-bit shift register Multiplier:**
+* Operand A is loaded into internal register inside the multiplier component when load signal is high.
+* Register which keeps the value of A is shifted to the right when shift_right signal is high.
+* The dataout output signal of this component is 1-bit signal. It is the least significant bit of the register.
+
+**17-bit shift register Product:**
+* Register is initialized to 0 when reset signal is high.
+* Register loads the addition result from adder in its most significant bits when load signal is high.
+* Register is shifted to the right when shift input is high.
+* The dataout output signal bits are its 16 least significant bits.
+
+**AND component:**
+* The block diagram consists of 8 AND gates logically.
+* It performs the AND logical operation on each multiplicand bits with the least significant bit of the multiplier.
+
+**8-bit Adder:**
+* The component sums the result of the AND gates with the 8 most significant bits of the Product output.
+
+**The system Controller:**
+* It includes a state machine and it produces control signals of all other components at right time.
+
+### State Machine
+The state machine is shown below.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/kmby96hv5fxy6wa/fsm_seq_multp.png">
+</p>
+
+# License
 This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
 view, download, display, and copy the content, subject to the following
