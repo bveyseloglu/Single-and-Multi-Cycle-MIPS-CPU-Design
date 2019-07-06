@@ -259,7 +259,7 @@ The ALU component performs some arithmetic operations on its input operands depe
 ### Single-Cycle Control
 
 <p align="center"> 
-  <img src="https://www.dropbox.com/s/o2ueuz1j4tky0u2/single_cycle_block_cu.PNG">
+  <img src="https://www.dropbox.com/s/o2ueuz1j4tky0u2/single_cycle_block_cu.PNG"> 
 </p>
 
 The control unit computes the control signals depends on the opcode and funct fields of the instruction, Instr (31:26) and Instr (5:0) You can see necessary control signals attached to the datapath on the Figure.
