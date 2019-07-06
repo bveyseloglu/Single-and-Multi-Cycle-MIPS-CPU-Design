@@ -200,6 +200,95 @@ will use for the RAM and ROM.
 
 Both RAM and ROM hardwares that were designed in the laboratory session can hold 1024 different 32-bit standart logic vectors. The initial values of these memory values are U. The main process of the harwares are sensitive to clock, read, and write signal (if available).
 
+## 5. Single Cycle CPU Design
+In this project, a single-cycle MIPS CPU was implemented. 
+**IMPORTANT NOTICE:** This project may not work properly.
+
+### Single-cycle CPU Description
+The single-cycle microarchitecture executes an entire instruction in one cycle. So, the cycle time is limited by the slowest instruction.
+We will divide our microarchitecture into two interacting parts: the datapath and the control. The datapath operates on words of data. It contains structures such as memories, registers, ALUs, and multiplexers. The state elements of the datapath are introduced in Figure 1. MIPS is a 32-bit architecture, so we will use a 32-bit datapath. The control unit receives the current instruction from the datapath and tells the datapath how to execute that instruction. Specifically, the control unit produces multiplexer select, register enable, and memory write signals to control the operation of the datapath.
+
+We will start designing the CPU by connecting the state elements from Figure 1 with combinational logic that can execute the various instructions. Control signals determine which specific instruction is carried out by the datapath at any given time. The controller contains combinational logic that generates the required control signals based on the current instruction.
+
+#### Program Counter
+The program counter is an ordinary 32-bit register. Its output, PC, indicates to the current instruction. Its input, PC’, indicates the address of the next instruction. The reset input signal provides us to reset the PC register asynchronously. If reset input is 1 then PC is equal to 0. Otherwise, on the rising edge of the clock, input is loaded to the output.
+
+#### Instruction Memory
+The instruction memory has a single read port.1 It takes a 6-bit instruction address input, a, and reads the 32-bit data, instruction, from that address onto the read data output, rd. It consists of array of std_logic_vector. If there is a change on the address, the data on this address is loaded to the rd output. You can define an array as following.
+type ROM_Array is array (0 to 63) of std_logic_vector(31 downto 0);
+
+#### Register File
+The 32-element x 32-bit register file has two read ports and one write port. The read ports take 5-bit address inputs, ra1 and ra2, each specifying one of 2^5= 32 registers as source operands. They read the 32-bit register values onto read data outputs rd1 and rd2, respectively. The write port takes a 5-bit address input, wa3, a 32-bit write data input, wd3, a write enable input, we3 and lastly a clock. If the write enable is 1, the register file writes the data into the specified register on the rising edge of the clock. The register file is read combinationally. If there is a change on the address, the new data is written on the output rd buses. The read process does not wait the rising edge of the clock.
+
+#### Data Memory
+The data memory has a single read/write port. If the write enable, we, is 1, it writes data wd into address a on the rising edge of the clock. If the write enable is 0, it reads address a onto rd. Read operation is performed combinationally. You can easily define a memory array as following for the data memory.
+
+type ram_type is array (0 to 255) of std_logic_vector(31 downto 0);
+
+#### Read and Write Process
+The instruction memory, register file, and data memory are all read as combinational. In other words, if the address changes, the new data appears at rd after some propagation delay. No clock is involved. They are written only on the rising edge of the clock. The state of the system is changed only at the clock edge. The address, data, and write enable must setup sometime before the clock edge and must remain stable until a hold time after the clock edge.
+
+### Single-Cycle Datapath
+
+The figure given below shows the datapath of the MIPS processor. After you finish writing the components inside the datapath,
+you will connect them according to the figure. The datapath given here provides just a few instructions.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/single_cycle_datapath.PNG">
+</p>
+
+#### Multiplexers
+The datapath consists of 2x1 components. The multiplexers are combinational circuits that select binary information from one of the inputs according to the select input and direct it to a single output line. The selection of a particular input line is controlled by a set of selection lines. Normally, there are 2𝑛𝑛 input lines and n selection lines whose bit combinations determine which input is selected.
+
+#### ADDER
+Adder performs addition operation on its operands combinationally. The figure given below shows the entity of the ADDER component.
+
+#### Shift Left 2 Unit (SL2 Component)
+The unit performs 2-bit shift left operation on its operand. The operation result is written on the output combinationally. The result means actually that input operand is multiplied by 4.
+
+#### Sign Extender Unit (SIGNEXT Component)
+Sign Extender Unit extends the 16-bit signal to the 32-bit signal. It assigns the 16 most significant bits of the output signal to the 0 or 1 depends on the sign bit of the input. If the sign bit, most significant bit, of the input is 1, then It puts 1 to the 16 most significant bits of the output signal. If the sign bit, most significant bit, of the input is 0, then It puts 0 to the 16 most significant bits of the output signal.
+
+#### ALU
+The ALU component performs some arithmetic operations on its input operands depends on the Table 1. It shows which operation is done according to the F(2:0). You are familiar to write the vhdl description of an ALU from previous labs. Zero input is necessary for branch instructions. It indicates whether result of the ALU is zero or not.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/dlqq118ze1r8h93/single_cycle_alu_funcs.PNG">
+</p>
+
+### Single-Cycle Control
+
+<p align="center"> 
+  <img src="https://www.dropbox.com/s/o2ueuz1j4tky0u2/single_cycle_block_cu.PNG">
+</p>
+
+The control unit computes the control signals depends on the opcode and funct fields of the instruction, Instr (31:26) and Instr (5:0) You can see necessary control signals attached to the datapath on the Figure.
+
+Most of the control information comes from the opcode, however for R-type instructions also the funct field is used to determine the ALU operation. Therefore, we will simplify our design by dividing our control unit design into two blocks of combinational logic. The main decoder generates most of the output signals from the opcode. It also determines a 2-bit ALUOp signal. The ALU decoder uses this ALUOp signal together with the funct field to generate ALUControl. The meaning of the ALUOp signal is given in Table below. Table 2 is a truth table for the ALU decoder.
+
+<p align="center"> 
+  <img src="https://www.dropbox.com/s/izk3vyu030m7shf/single_cycle_alu_encoding.PNG">
+</p>
+
+<p align="center"> 
+  <img src="https://www.dropbox.com/s/cwwwfcazthg44o3/single_cycle_alu_dec_tt.PNG">
+</p>
+
+The meanings of the three ALUControl signals are given in Table. Because ALUOp is never 11, the truth table can use don’t care’s X1 and 1X instead of 01 and 10 to simplify the logic. When ALUOp is 00 or 01, the ALU should add or subtract, respectively. When ALUOp is 10, the decoder examines the funct field to determine the ALUControl. Note that, for the R-type instructions we implement, the first two bits of the funct field are always 10, so we may ignore them to simplify the decoder.
+
+Table below is a truth table for the main decoder that summarizes the control signals as a function of the opcode. All R-type instructions use the same main decoder values; they differ only in the ALU decoder output. For instructions that do not write to the register file such as sw and beq nstructions, the RegDst and MemtoReg control signals are don’t cares (X). The address and data to the register write port do not matter because RegWrite is not asserted. The logic for the decoder can be designed using your favorite techniques for combinational logic design.
+
+<p align="center"> 
+  <img src="https://www.dropbox.com/s/x2i0sg2qyh9mp28/single_cycle_alu_main_dec_tt.PNG">
+</p>
+
+### MIPS Processor
+The datapath and controller units of the MIPS processor are connected as shown in the Figure below.
+
+<p align="center"> 
+  <img src="https://www.dropbox.com/s/4fkub8yib2yy2rg/mips_proc.PNG">
+</p>
+
 # License
 This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
