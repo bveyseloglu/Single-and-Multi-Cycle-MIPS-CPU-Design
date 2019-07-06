@@ -1,11 +1,10 @@
 # Primitive-MIPS-CPU-Design
 
 ## License
-Personal Use License
-
-The content owner grants the buyer a non-exclusive, perpetual, personal use
-license to view, download, display, and copy the content, subject to the
-following restrictions:
+This project was amde for educational purposes only. The content owner
+grants the user a non-exclusive, perpetual, personal use license to
+view, download, display, and copy the content, subject to the following
+restrictions:
 
 The content is licensed for personal use only, not commercial use. The
 content may not be used in any way whatsoever in which you charge money,
