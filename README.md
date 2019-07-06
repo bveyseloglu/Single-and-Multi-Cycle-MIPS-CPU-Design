@@ -1,5 +1,5 @@
-# Primitive-MIPS-CPU-Design
-A very simple single cycle and multi cycle MIPS CPU design written in VHDL. The design detailedly explained.
+# Single-and-Multi-Cycle-MIPS-CPU-Design
+A very simple single cycle and multi cycle MIPS CPU design written in VHDL. The design explained in detail.
 
 These are my laboratory work from Computer Architecture course.
 
