@@ -344,6 +344,128 @@ A control unit coordinates how data moves around a cpu. The control unit (CU) is
 
 The control unit of the single cycle CPU design that made in this laboratory session can generate the “memwrite”, “memtoreg”, “branch”, “alusrc”, “regdst”, “regwrite”, and “alucontrol” signals to configure all of the units to execute the input instruction.  All of these signals were determined while decoding the opcode.
 
+## 6. Multi cycle CPU Design
+
+In this project, a multicycle CPU was implemented.
+
+### Multicycle CPU Description
+The first implementation of the CPU will only execute several ALU operations (e.g., addi, and) and the ldw and stw instructions. A break instruction will also be used to stop the execution of the program. The CPU is connected into the same system you built for the memories project:
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/ntjmwe0y53fy78n/block_multi_cyc.PNG">
+</p>
+
+To execute an instruction, the multicycle CPU will need 4 to 5 cycles, depending on the instruction. The following figure is the state machine of the controller of the CPU. It illustrates the different steps of the execution of an instruction:
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/k2jx5mhptfpqxhd/fsm_multi_cyc.PNG">
+</p>
+
+During FETCH1 and FETCH2, the CPU reads the next instruction to execute. During DECODE, the CPU identifies the instruction and determine the next state. During the next states the instruction is executed. We will call these last states Execute states.
+
+The next subsections describe each state, and progressively introduce the internal units and signals of the CPU.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/nf6r06mmva77hbs/block_multi_cyc_dp_cu.PNG">
+</p>
+
+#### FETCH1
+During this first state of the execution, the signal rstart is set to 1 to start a new read process. The instruction word will be available during the next cycle. The Controller handles the state machine. The input reset_n reinitializes the state machine to FETCH1. The controller state jumps to next state at rising edge of the clock.
+
+The PC holds the address of the next instruction. The address is stored in a 16-bit register in PC module. The next address is the current address incremented by 4. The PC register is incremented in PC module at rising edge of the clock when en=1. PC holds the PC old value at rising edge of the clock when en=0. The en signal is produced by the controller during FETCH2 state.
+
+Next state is always FETCH2.
+
+* The input clk is the clock signal.
+* The output addr is the current 16-bit register value extended to 32 bits. The 16 mostsignificant bits are set to 0.
+* The input reset_n resets the pc register to 0.
+* The input en enables the PC to switch to the next address (addr+4).
+
+#### FETCH2
+During this state, the instruction word is read from the input rddata, and saved in a register. The Controller enables the PC by making pc_en signal set to 1, so that it increments the address by 4.
+
+The Instruction Register (IR) is a 32-bit register that stores the instructions coming from the memory. The controller enables the IR by making ir_en signal set to 1 during this state.
+
+Next state is always DECODE.
+
+* The input clk is the clock signal.
+* The input en enables to write the input D in the register at the next rising edge of the clock.
+* The output Q is the current value of the register.
+
+#### DECODE
+During this state, the Controller reads the opcode of the instruction to determine which the current instruction is, and determines the next state according to this opcode.
+
+The basic instructions of the CPU are given below. You will determine the next state after decode state according to OP and OPX field of the current instruction. The instruction format of the CPU wil be given in following sections.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/b2f8pd9c4k700uw/instr_multi_cyc.PNG">
+</p>
+
+#### I_OP
+The I_OP state executes operations between a register (rA) and an immediate value that is embedded in the instruction word, and saves the result in a second register (rB). Such instructions with a 16-bit immediate embedded value are I-type instructions.
+The general I-Type instruction format is given below.
+
+| A (31 to 27) | B (26 to 22) | IMM16 (21 to 6) | OP (5 to 0) |
+|:------------:|:------------:|-----------------|-------------|
+
+The fields A and B are register addresses. A is a register operand, and B is the destination register. The field IMM16 is the 16-bit immediate value. The field OP is the opcode of the instruction.
+
+During the state I_OP, the op_alu signal is set by the Controller to perform the required operation in the ALU. The result of the ALU is saved in the Register File. The controller must produce rf_wren signal to enable write operation on Register File. The sel_b and sel_rc signal remains 0. Next state is always FETCH1.
+
+The op_alu signal is determined by the opcode of the I-Type instruction. For example the opcode of addi instruction is 0x04. The op_alu signal must be “000000” since addition operation is required.
+
+The Register File and the ALU are the same units that you have implemented during the previous sessions. The Extend unit extends the width of the 16-bit field IMM16 to 32 bits. The sign is extended or not depending on the signal signed. The controller produces the imm_signed signal which determines whether immediate value is sign extended or not.
+
+The Controller selects the operation to execute in the ALU with the op_alu signal. The op_alu signal depends on the current instruction (an addition for addi, stw and ldw, a logical AND for and, or a logical right shift for srl). The ALU opcode is summarized in the following table.
+
+<p align="center"> 
+  <img src="https://dl.dropboxusercontent.com/s/vx3n600m65pdff8/alu_func_multi_cyc.PNG">
+</p>
+
+#### R_OP
+The R_OP state executes operations between two registers, and saves the result in a third register. Such instructions with three register addresses are R-type instructions (for Register type). The general R-type instruction format is detailed below.
+
+| A (31 to 27) | B (26 to 22) | C (21 to 17) | OPX (16 to 11) | IMM5 (10 to 6) | OP (5 to 0) |
+|:------------:|:------------:|--------------|----------------|----------------|-------------|
+
+The fields A, B and C are register addresses. A and B are register operands, and C is the destination register. The field IMM5 is a small 5-bit immediate value that is only used by a few R-type instructions. The field OP is always set to 0x3A for R-type instructions, this is the way to identify them. The field OPX is an extension of the field OP and determines the function of the instruction.
+
+During the state R_OP, the signal op_alu is set by the Controller to perform the required operation in the ALU. The register b is selected as the second operand, and the result of the ALU is saved in the Register File.
+
+The controller must produce rf_wren signal to enable write operation on Register File. The sel_b signal must be set to 1 to select b output of the Register File. The sel_rc signal must be also set to 1 to select write address for Register File.
+Next state is always FETCH1.
+
+#### LOAD
+The ldw instruction is an I-type instruction with OP=0x17. This instruction takes two states LOAD1 and LOAD2 to complete.
+
+The load operation takes 1 more cycle than the other instructions. This is caused by the read process from memory, which has 1-cycle latency. During the state LOAD1, the address to read is computed by the ALU (adding the signed immediate value to a) and the signal rstart is set to start a read process. The read value from memory will be available during LOAD2.
+
+The multiplexer controlled by the signal sel_addr selects the memory address from either the PC
+address or the result of the ALU. During the state LOAD2, the memory data is written to the Register File at the address specified by B.
+
+The multiplexer controlled by the signal sel_mem selects the data to write to the Register File from either the result of the ALU or the rddata input.
+
+The controller produces following signals during LOAD1 state;
+* The rstart, imm_signed and sel_addr signals.
+* The op_alu signal is set to “000000” for addition to calculate the address.
+* Next state is always LOAD2.
+
+The controller produces following signals during LOAD2 state;
+* The rf_wren and sel_mem signals.
+* Next state is always FETCH1.
+
+#### STORE
+The stw instruction is a I-type instruction with OP=0x15.
+
+During the state STORE, the ALU computes the memory address as for a stw instruction, and the Controller activates the write output signal to start a write process. The data to write is held in the register b.
+
+The wstart signal must be set to 1 during this state. On the other states of the controller the wstart signal must remain 0. Next state is always FETCH1.
+
+#### BREAK
+The break instruction is an R-type instruction with OPX=0x34. This instruction will be used to stop the CPU execution. The state BREAK is simply a dead end.
+
+Next state is always BREAK state.
+
 # License
 This project was made for educational purposes only. The content owner
 grants the user a non-exclusive, perpetual, personal use license to
