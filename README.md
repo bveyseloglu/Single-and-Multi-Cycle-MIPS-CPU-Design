@@ -19,15 +19,18 @@ The controller contains the following state machine. It includes a counter used 
 
 ### The Architecture
 The architecture of sequential_adder.vhd consisting by 5 process sections. All process sections are summarized below.
-* *SIPO*: This process reads the A input in a serial manner at the rising edge of the clock signal for 4 times then converts the input to a paralel manner.
-* REG: When the controller sends a signal, that is LATCHB, the B input loads into the system.
-* PISO: Outputs the C register in serial manner. This process is governed by the controller. When the PISOC signal is high, the process saves the summation of the input. When SHIFTC signal is high, the process shifts saved summation value to the right. Also, C output is always the least significant bit of saved summation.
-* FSM_COMB: This is the governor process section of the whole circuit. This section of the sequential adder behaves as the algorithm that described in the bottom of the page 3 of the laboratory paper.
-* FSM_SEQ: This process advances the states of algorithm to the next state at each time the clock signal gets high. This process is also sensitive to an asynchronous reset signal that returns the system to the beginning of the calculation.
+* **SIPO**: This process reads the A input in a serial manner at the rising edge of the clock signal for 4 times then converts the input to a paralel manner.
+* **REG**: When the controller sends a signal, that is LATCHB, the B input loads into the system.
+* **PISO**: Outputs the C register in serial manner. This process is governed by the controller. When the PISOC signal is high, the process saves the summation of the input. When SHIFTC signal is high, the process shifts saved summation value to the right. Also, C output is always the least significant bit of saved summation.
+* **FSM_COMB**: This is the governor process section of the whole circuit. This section of the sequential adder behaves as the algorithm that described in the bottom of the page 3 of the laboratory paper.
+* **FSM_SEQ**: This process advances the states of algorithm to the next state at each time the clock signal gets high. This process is also sensitive to an asynchronous reset signal that returns the system to the beginning of the calculation.
 
 The first versions of the project was designed for our FPGA board to make more easy to enter the input numbers in serial manner by the user. For achieving this kind of design, there is also 2 more .vhd files are present in the Vivado project. The final version of the project doesn’t have these files because in the laboratory session, we used a test bench instead of a real time user input. These files are explained below.
-* hhtoh.vhd: This VHDL code takes the master clock signal as an input signal and then gives a clock signal that has a period of 1 Hz. This component is used for getting serial inputs from user more easily.
-* top.vhd: This is the top module of the project. It contains hhtoh.vhd and sequential_adder.vhd as a component and then connect them properly.
+* **hhtoh.vhd**: This VHDL code takes the master clock signal as an input signal and then gives a clock signal that has a period of 1 Hz. This component is used for getting serial inputs from user more easily.
+* **top.vhd**: This is the top module of the project. It contains hhtoh.vhd and sequential_adder.vhd as a component and then connect them properly.
+
+### Known Bugs
+"hhtoh.vhd" may written incorrect.
 
 
 ## License
