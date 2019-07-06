@@ -132,12 +132,38 @@ The expressions of the components are listed below.
 **The system Controller:**
 * It includes a state machine and it produces control signals of all other components at right time.
 
-### State Machine
+### The State Machine
 The state machine is shown below.
 
 <p align="center"> 
   <img src="https://dl.dropboxusercontent.com/s/kmby96hv5fxy6wa/fsm_seq_multp.png">
 </p>
+
+The asynchronous reset signal is initialized to state machine to s0.
+
+**State s0:** Waits in this state till start signal is high before going into state s1 and initializing the register in which:
+* The multiplicand and multiplier registers load the input values.
+* The product register and the loop counter are initialized to 0.
+
+**State s1:** The next state is always s2.
+* In this state, Adder result is loaded into the product register.
+* The loop counter is always incremented by 1.
+
+**State s2:** If the loop counter reaches the end value, continue with state s3, otherwise return to the state s1.
+* In both cases, the multiplier and product registers are shifted. Therefore, necessary control signals must be produced in this state.
+
+**State s3:** The next state is always s0.
+* In this state, multiplication operation is complete. ready output signal must be set active to indicate operation is done.
+
+### The Architecture
+The architecture of top_multiplier.vhd consisting by 7 components that 6 of them does the arithmetic and logic operations and one of them controls the whole circuit. All operations done sequently. The components of binary multiplication architecture are summarized below. 
+* **top_multiplier.vhd:** The top module of the binary multiplicatiob circuit. Makes the connection of each sub-part.
+* **mcand.vhd:** This module hold the multiplicant value in an internal register if the load signal is high.
+* **mlier.vhd:** This module logically shifts right the multiplier. This operation is required for the shifting illustrated in the Illustration 1.
+* **producter.vhd:** Does the multiplying operation.
+* **adder.vhd:** Adds the inputs of the block.
+* **ander.vhd:** Does the logical and operation of second input’s all digits with the first input seperately. Then, concatenates the result to a 8 bit std_logic_vector.
+* **controller.vhd:** This is a finite state machine that controls the whole multiplication operation.
 
 # License
 This project was made for educational purposes only. The content owner
